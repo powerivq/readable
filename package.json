@@ -1,0 +1,24 @@
+{
+  "name": "readability-service",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "debug": "node --inspect=0.0.0.0:9229 app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/powerivq/readability-service.git"
+  },
+  "dependencies": {
+    "jsdom": "^11.11.0",
+    "readability": "git+https://github.com/mozilla/readability.git"
+  },
+  "author": "powerivq",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/powerivq/readability-service/issues"
+  },
+  "homepage": "https://github.com/powerivq/readability-service#readme"
+}
