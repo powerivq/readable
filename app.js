@@ -1,13 +1,16 @@
+const express = require("express")
 const url = require("url");
 const path = require("path");
 const rq = require("request");
 const http = require("http");
-const https = require("https");
 const Readability = require("readability");
 const { JSDOM } = require("jsdom");
 
 const port = 80;
 const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
+
+http.globalAgent.keepAlive = true;
+rq.debug = true;
 
 const formatDigits = (num, digit) => {
   var ans = "" + num;
@@ -64,14 +67,21 @@ const serveReadability = (resourceUrl, response) => {
     },
     gzip: true
   }, (error, fetchResponse, body) => {
-    if (!fetchResponse || fetchResponse.statusCode != 200) {
-      respondError(response, "FETCH_FAILURE", `Response code: ${fetchResponse.statusCode}`);
+    if (error) {
+      logMessage(`${resourceUrl}: error detail: ${error}`);
+      respondError(response, "FETCH_FAILURE", `Error: ${error}`);
       return;
     }
 
-    if (error) {
-      logMessage(`${resourceUrl}: error`);
-      respondError(response, "FETCH_FAILURE", `Error: ${error}`);
+    if (!fetchResponse) {
+      logMessage(`${resourceUrl}: No response object`);
+      respondError(response, "FETCH_FAILURE", "No response object");
+      return;
+    }
+
+    if (fetchResponse.statusCode != 200) {
+      logMessage(`${resourceUrl}: Response ${fetchResponse.statusCode}`);
+      respondError(response, "FETCH_FAILURE", `Response ${fetchResponse.statusCode}`);
       return;
     }
 
@@ -96,17 +106,13 @@ const requestHandler = (request, response) => {
     return;
   }
 
-  serveReadability(reqUrl.query.url, response); 
+  serveReadability(encodeURI(reqUrl.query.url), response); 
 }
 
-const server = http.createServer(requestHandler);
+const app = express()
+app.get("/", requestHandler);
 
-server.listen(port, (err) => {
-  if (err) {
-    logMessage(`Something bad happened: ${err}`)
-    return;
-  }
-
+app.listen(port, () => {
   logMessage(`Server is listening on ${port}`);
-})
+});
 
