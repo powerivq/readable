@@ -44,6 +44,11 @@ const handleHtml = (resourceUrl, rawHtml, response) => {
   logMessage(`${resourceUrl}: JSDOM completed`);
 
   var article = new Readability(doc.window.document).parse();
+  if (!article) {
+    respondError(response, "PARSE_FAILURE", "Readability returned empty");
+    return;
+  }
+
   logMessage(`${resourceUrl}: Readability title: ${article.title}`);
 
   var responseJson = {
