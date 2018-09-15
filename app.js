@@ -113,8 +113,13 @@ const requestHandler = (request, response) => {
   serveReadability(encodeURI(reqUrl.query.url), response); 
 }
 
+const okHandler = (request, response) => {
+  response.end("ok");
+}
+
 const app = express()
 app.get("/", requestHandler);
+app.get("/ok", okHandler);
 
 app.listen(port, () => {
   logMessage(`Server is listening on ${port}`);

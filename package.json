@@ -1,7 +1,7 @@
 {
   "name": "readability-service",
   "version": "0.0.1",
-  "description": "",
+  "description": "Readability-as-a-service",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",

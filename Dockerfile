@@ -1,16 +1,13 @@
-FROM node:slim
-
-RUN apt-get update -yq \
-    && apt-get upgrade -yq \
-    && apt-get install git -yq
+FROM node:alpine
 
 COPY . /server
 WORKDIR /server
 
-RUN npm install \
-    && apt-get purge git -yq \
-    && apt-get autoremove -yq
+RUN apk add --update --no-cache git curl \
+    && npm install \
+    && apk del --no-cache git
 
 EXPOSE 80
+HEALTHCHECK --interval=5s CMD curl -f http://127.0.0.1/ok | grep "ok" | grep "ok" || exit 1
 ENTRYPOINT ["npm", "start"]
 
