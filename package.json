@@ -14,8 +14,8 @@
   "dependencies": {
     "express": "^4.16.3",
     "jsdom": "^16.5.0",
-    "readability": "git+https://github.com/mozilla/readability.git",
-    "request": "git+https://github.com/powerivq/request.git"
+    "node-fetch": "^2.6.7",
+    "readability": "git+https://github.com/mozilla/readability.git"
   },
   "author": "powerivq",
   "license": "UNLICENSED",

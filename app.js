@@ -1,13 +1,14 @@
-const express = require("express")
-const url = require("url");
-const path = require("path");
+const express = require('express')
+const url = require('url');
+const path = require('path');
+const fetch = require('node-fetch');
 const rq = require("request");
-const http = require("http");
-const Readability = require("readability");
-const { JSDOM } = require("jsdom");
+const http = require('http');
+const Readability = require('readability');
+const { JSDOM } = require('jsdom');
 
 const port = process.env.PORT || 80;
-const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
+const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36';
 
 http.globalAgent.keepAlive = true;
 
@@ -26,11 +27,11 @@ const logMessage = message => {
 
 const respondError = (response, error, detail) => {
   var responseJson = {
-    status: "fail",
+    status: 'fail',
     error: error,
     detail: detail
   }
-  response.setHeader("content-type", "application/json");
+  response.setHeader('content-type', 'application/json');
   response.end(JSON.stringify(responseJson));
 }
 
@@ -52,52 +53,44 @@ const handleHtml = (resourceUrl, rawHtml, response) => {
   logMessage(`${resourceUrl}: Readability title: ${article.title}`);
 
   var responseJson = {
-    status: "success",
+    status: 'success',
     title: article.title,
     content: article.content
   }
 
-  response.setHeader("content-type", "application/json");
+  response.setHeader('content-type', 'application/json');
   response.end(JSON.stringify(responseJson));
 }
 
 const serveReadability = (resourceUrl, response) => {
   logMessage(`${resourceUrl}: Request initiated`);
 
-  rq({
-    url: resourceUrl,
+  fetch(resourceUrl, {
+    size: 5 * 1024 * 1024,
     headers: {
-      "user-agent": userAgent
-    },
-    gzip: true
-  }, (error, fetchResponse, body) => {
-    if (error) {
-      logMessage(`${resourceUrl}: error detail: ${error}`);
-      respondError(response, "FETCH_FAILURE", `Error: ${error}`);
-      return;
-    }
+      'user-agent': userAgent
+    }})
+    .then(res => {
+      const contentType = res.headers.get('content-type');
+      if (!contentType || contentType.includes('text/html')) {
+        return res.text();
+      }
+      throw new Error(`Content-Type is not text/html, but ${contentType}`);
+    })
+    .then(body => {
+      if (!body || body.length === 0) {
+        logMessage(`${resourceUrl}: Empty body received`);
+        respondError(response, "FETCH_FAILURE", "Empty response");
+        return;
+      }
 
-    if (!fetchResponse) {
-      logMessage(`${resourceUrl}: No response object`);
-      respondError(response, "FETCH_FAILURE", "No response object");
-      return;
-    }
-
-    if (fetchResponse.statusCode != 200) {
-      logMessage(`${resourceUrl}: Response ${fetchResponse.statusCode}`);
-      respondError(response, "FETCH_FAILURE", `Response ${fetchResponse.statusCode}`);
-      return;
-    }
-
-    if (!body || body.length === 0) {
-      logMessage(`${resourceUrl}: Empty body received`);
-      respondError(response, "FETCH_FAILURE", "Empty response");
-      return;
-    }
-
-    logMessage(`${resourceUrl}: ${body.length} bytes received`); 
-    handleHtml(resourceUrl, body, response);
-  });
+      logMessage(`${resourceUrl}: ${body.length} bytes received`); 
+      handleHtml(resourceUrl, body, response);
+    })
+    .catch(err => {
+      logMessage(`${resourceUrl}: error detail: ${err}`);
+      respondError(response, "FETCH_FAILURE", `Error: ${err}`);
+    });
 }
 
 const requestHandler = (request, response) => {
@@ -114,12 +107,12 @@ const requestHandler = (request, response) => {
 }
 
 const okHandler = (request, response) => {
-  response.end("ok");
+  response.end('ok');
 }
 
 const app = express()
-app.get("/", requestHandler);
-app.get("/ok", okHandler);
+app.get('/', requestHandler);
+app.get('/ok', okHandler);
 
 app.listen(port, () => {
   logMessage(`Server is listening on ${port}`);
