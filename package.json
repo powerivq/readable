@@ -1,5 +1,5 @@
 {
-  "name": "readability-service",
+  "name": "readable",
   "version": "0.0.1",
   "description": "Readability-as-a-service",
   "main": "app.js",
@@ -9,13 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/powerivq/readability-service.git"
+    "url": "git+https://github.com/powerivq/readable.git"
   },
   "dependencies": {
-    "express": "^4.16.3",
-    "jsdom": "^16.5.0",
-    "node-fetch": "^2.6.7",
-    "readability": "git+https://github.com/mozilla/readability.git"
+    "@mozilla/readability": "latest",
+    "express": "latest",
+    "jsdom": "latest",
+    "node-fetch": "latest",
+    "request": "latest"
   },
   "author": "powerivq",
   "license": "UNLICENSED",

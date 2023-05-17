@@ -1,14 +1,12 @@
 const express = require('express')
 const url = require('url');
-const path = require('path');
 const fetch = require('node-fetch');
-const rq = require("request");
 const http = require('http');
-const Readability = require('readability');
+const readability = require('@mozilla/readability');
 const { JSDOM } = require('jsdom');
 
 const port = process.env.PORT || 80;
-const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36';
+const userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36 Edg/113.0.1774.42';
 
 http.globalAgent.keepAlive = true;
 
@@ -44,7 +42,7 @@ const handleHtml = (resourceUrl, rawHtml, response) => {
   });
   logMessage(`${resourceUrl}: JSDOM completed`);
 
-  var article = new Readability(doc.window.document).parse();
+  var article = new readability.Readability(doc.window.document).parse();
   if (!article) {
     respondError(response, "PARSE_FAILURE", "Readability returned empty");
     return;
